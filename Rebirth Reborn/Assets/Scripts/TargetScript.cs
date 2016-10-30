@@ -3,11 +3,23 @@ using System.Collections;
 
 public class TargetScript : MonoBehaviour {
 
-    int health;
+    public int health;
 
 	// Use this for initialization
 	void Start () {
-        health = 50;
+        if (gameObject.GetComponent<BehaviorAI>().typeOfCreature == "Plant")
+        {
+            health = 10;
+        }
+        else if (gameObject.GetComponent<BehaviorAI>().typeOfCreature == "Animal"
+            && gameObject.GetComponent<BehaviorAI>().typesOfFood.Length == 2)
+        {
+            health = 50;
+        }
+        else
+        {
+            health = 60;
+        }
 	}
 	
 	// Update is called once per frame
