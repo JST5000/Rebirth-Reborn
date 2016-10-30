@@ -9,15 +9,22 @@ public class TargetScript : MonoBehaviour {
 	void Start () {
         if (gameObject.GetComponent<BehaviorAI>().typeOfCreature == "Plant")
         {
+            //plant
             health = 10;
         }
-        else if (gameObject.GetComponent<BehaviorAI>().typeOfCreature == "Animal"
-            && gameObject.GetComponent<BehaviorAI>().typesOfFood.Length == 2)
+        else if (gameObject.GetComponent<BehaviorAI>().typesOfFood.Length == 2)
         {
+            //omnivore
             health = 50;
         }
-        else
+        else if (gameObject.GetComponent<BehaviorAI>().typesOfFood[0] == "Plant")
         {
+            //herbivore
+            health = 80;
+        }
+        else 
+        {
+            //carnivore
             health = 60;
         }
 	}
