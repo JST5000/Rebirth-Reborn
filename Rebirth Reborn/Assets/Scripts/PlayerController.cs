@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour {
     float attackTime = 0.0f;
     float hitTime = 0.0f;
     public float attackTimer = 0.1f;
+    public int health = 80;
 
     void Awake()
     {
@@ -85,13 +86,6 @@ public class PlayerController : MonoBehaviour {
         Vector2 moveVe1 = rb.velocity;
         moveVe1.x = input * speed * Time.deltaTime;
         rb.velocity = moveVe1;
-        //if (input > 0)
-        //{
-        //    gameObject.GetComponent<SpriteRenderer>().sprite = right;
-        //} else if (input < 0)
-        //{
-        //    gameObject.GetComponent<SpriteRenderer>().sprite = left;
-        //}
     }
 
     void MoveVertical(float input)
@@ -99,13 +93,16 @@ public class PlayerController : MonoBehaviour {
         Vector2 moveVe1 = rb.velocity;
         moveVe1.y = input * speed * Time.deltaTime;
         rb.velocity = moveVe1;
-        //if (input > 0)
-        //{
-        //    gameObject.GetComponent<SpriteRenderer>().sprite = up;
-        //}
-        //else if (input < 0)
-        //{
-        //    gameObject.GetComponent<SpriteRenderer>().sprite = down;
-        //}
+    }
+
+    void OnCollisionEnter2D(Collision2D coll)
+    {
+        if (isAttacking == true)
+        {
+            if (coll.gameObject.GetComponent<TargetScript>().health <= 10)
+            {
+                health += 20;
+            }
+        }
     }
 }
