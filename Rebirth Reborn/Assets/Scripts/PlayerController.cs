@@ -12,11 +12,8 @@ public class PlayerController : MonoBehaviour {
 
     public float speed = 300.0f;
     public float strikeForce = 3500.0f;
-    bool canAttack = true;
-    public bool isAttacking = false;
-    float attackTime = 0.0f;
-    float hitTime = 0.0f;
-    public float attackTimer = 0.1f;
+    
+    
     public int health = 80;
 
     void Awake()
@@ -55,31 +52,16 @@ public class PlayerController : MonoBehaviour {
         MoveHorizontal(Input.GetAxis("Horizontal"));
         MoveVertical(Input.GetAxis("Vertical"));
 
-        if (Time.time-hitTime>= attackTimer)
-        {
-            isAttacking = false;
-        }
+      
 
-        if (Input.GetButtonDown("Jump") && ((Time.time - attackTime) >= 2.0f))
+        if (Input.GetButtonDown("Jump") && gameObject.GetComponent<Attack>().canAttack)
         {
-            isAttacking = true;
-            hitTime = Time.time;
-            Debug.Log(isAttacking);
-            Attack(Input.GetAxis("Vertical"), Input.GetAxis("Horizontal")); // takes keyboard input and calls attack
-
+            gameObject.GetComponent<Attack>().Attack1(Input.GetAxis("Vertical"), Input.GetAxis("Horizontal")); // takes keyboard input and calls attack
         }
         
 
     }
 
-    void Attack(float vert, float hori)
-    {
-        
-        Vector2 direction = new Vector2(hori, vert);
-        rb.AddForce(direction * strikeForce);
-        attackTime = Time.time;
-
-    }
 
     void MoveHorizontal(float input)
     {
@@ -97,7 +79,7 @@ public class PlayerController : MonoBehaviour {
 
     void OnCollisionEnter2D(Collision2D coll)
     {
-        if (isAttacking == true)
+        if (gameObject.GetComponent<Attack>().isAttacking)
         {
             if (coll.gameObject.GetComponent<TargetScript>().health <= 10)
             {

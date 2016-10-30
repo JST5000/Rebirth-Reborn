@@ -31,20 +31,27 @@ public class TargetScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+	    
+
 	}
 
     void OnCollisionEnter2D(Collision2D coll)
     {
-        if (coll.gameObject.name == "Player" && coll.gameObject.GetComponent<PlayerController>().isAttacking==true)
+        Debug.Log("Ive collided");
+        Attack atk = coll.gameObject.GetComponentInParent<Attack>();
+        Debug.Log("is null? " + Equals(atk, null) +"\n is attacking? " + atk.isAttacking);
+        //coll.gameObject.name == "Player"
+        if (!Equals(atk, null) && atk.isAttacking)
         {
             Debug.Log("Ive been hit");
             health -= 10;
             Debug.Log(health);
-            if (health<=0)
+            if (health <= 0)
             {
                 Destroy(gameObject);
             }
-        }
+         }
+
+        
     }
 }
