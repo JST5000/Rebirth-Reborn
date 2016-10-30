@@ -60,6 +60,7 @@ public class BehaviorAI : MonoBehaviour {
                 if(Equals(expected, "Hostile"))
                 {
                     firstHostile = current;
+                    nowHostile = true;
                 }else if(Equals(expected, "Flee"))
                 {
                     firstFleeFrom = current;
@@ -183,11 +184,11 @@ public class BehaviorAI : MonoBehaviour {
 
     GameObject[] GetGameObjectsWithin(float radius)
     {
-        Collider[] colliders = Physics.OverlapSphere(this.transform.position, radius);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(new Vector2(this.transform.position.x, this.transform.position.y), radius);
         GameObject[] entitiesWithin = new GameObject[colliders.GetLength(0)];
         for (int i = 0; i < colliders.GetLength(0); i++)
         {
-            entitiesWithin[i] = colliders[i].transform.parent.gameObject;
+            entitiesWithin[i] = colliders[i].gameObject;
         }
         return entitiesWithin;
     }
