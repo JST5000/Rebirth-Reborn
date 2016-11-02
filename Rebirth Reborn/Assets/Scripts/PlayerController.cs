@@ -81,7 +81,7 @@ public class PlayerController : MonoBehaviour {
     {
         if (gameObject.GetComponent<Attack>().isAttacking)
         {
-            if (coll.gameObject.GetComponent<TargetScript>().health <= 10)
+            if (Equals(coll.gameObject.tag, "Alive") && coll.gameObject.GetComponent<TargetScript>().health <= 10)
             {
                 health += 20;
             }

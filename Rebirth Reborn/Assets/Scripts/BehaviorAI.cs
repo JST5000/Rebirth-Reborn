@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BehaviorAI : MonoBehaviour {
+public class BehaviorAI : MonoBehaviour
+{
 
     [Range(0, 1000)]
     public float speed;
@@ -18,10 +19,10 @@ public class BehaviorAI : MonoBehaviour {
 
     private GameObject[] nearbyEntities;
 
-    private GameObject firstHostile;
+    private Vector2 firstHostile;
 
-    private GameObject firstFleeFrom;
-    
+    private Vector2 firstFleeFrom;
+
     private GameObject current;
 
     private string behavior;
@@ -34,9 +35,11 @@ public class BehaviorAI : MonoBehaviour {
     private float timeSinceLastPathing = 0;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         behavior = "Idle";
-	}
+        direction = new Vector3();
+    }
 
     void initTypesOfFood()
     {
@@ -44,43 +47,72 @@ public class BehaviorAI : MonoBehaviour {
         typesOfFood[0] = "Plant";
         typesOfFood[1] = "Animal";
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    Vector2 GetGeneralDirection()
+    {
+        if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+        {
+            if (direction.x > 0)
+            {
+                return new Vector2(1, 0);
+            }
+            else
+            {
+                return new Vector2(-1, 0);
+            }
+        }
+        else
+        {
+            if (direction.y > 0)
+            {
+                return new Vector2(0, 1);
+            }
+            else
+            {
+                return new Vector2(0, -1);
+            }
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         bool nowFleeing = false;
         bool nowHostile = false;
-        int[] tally = new int[2];
         nearbyEntities = GetGameObjectsWithin(awarenessRadius);
-        for(int i = 0; i<nearbyEntities.GetLength(0); i++)
+        for (int i = 0; i < nearbyEntities.GetLength(0); i++)
         {
             current = nearbyEntities[i];
-            if(current.tag == "Alive")
+            if (current.tag == "Alive")
             {
                 string expected = CheckExpectedBehavior(current);
-                if(Equals(expected, "Hostile"))
+                if (Equals(expected, "Hostile"))
                 {
-                    firstHostile = current;
+                    firstHostile = current.transform.position;
                     nowHostile = true;
-                }else if(Equals(expected, "Flee"))
+                }
+                else if (Equals(expected, "Flee"))
                 {
-                    firstFleeFrom = current;
+                    firstFleeFrom = current.transform.position;
                     nowFleeing = true;
                 }
             }
         }
-        if(nowFleeing)
+        if (nowFleeing)
         {
             behavior = "Flee";
-        } else if(nowHostile)
+        }
+        else if (nowHostile)
         {
             behavior = "Hostile";
-        } else
+        }
+        else
         {
             behavior = "Idle";
         }
         Act();
 
-	}
+    }
 
     string CheckExpectedBehavior(GameObject livingEntity)
     {
@@ -91,24 +123,23 @@ public class BehaviorAI : MonoBehaviour {
                 return "Hostile";
             }
         }
-        else if(CanEat(livingEntity, gameObject))
+        else if (CanEat(livingEntity, gameObject))
         {
             return "Flee";
-        } else
+        }
+        else
         {
             return "Idle";
         }
-
-
         return null;
     }
 
     bool CanEat(GameObject attackingCreature, GameObject other)
     {
         string[] types = attackingCreature.GetComponent<BehaviorAI>().typesOfFood;
-        for (int i = 0; i<types.GetLength(0); i++)
+        for (int i = 0; i < types.GetLength(0); i++)
         {
-            if(Equals(types[i], other.GetComponent<BehaviorAI>().typeOfCreature))
+            if (Equals(types[i], other.GetComponent<BehaviorAI>().typeOfCreature))
             {
                 return true;
             }
@@ -124,26 +155,49 @@ public class BehaviorAI : MonoBehaviour {
         {
             if (timeSinceLastPathing > resetTime)
                 direction = GetIdlePath();
-            firstFleeFrom = null;
-            firstHostile = null;
+            firstFleeFrom = transform.position;
+            firstHostile = transform.position;
+
         }
         else if (Equals(behavior, "Hostile"))
         {
             if (timeSinceLastPathing > resetTime)
-                direction = GetHostilePath();
-            firstFleeFrom = null;
+                direction = GetPathTowards(firstHostile);
+
+
+            firstFleeFrom = transform.position;
+
+            /*Attack skills = GetComponent<Attack>();
+            if(!Equals(skills, null) && skills.canAttack) 
+            {    
+                Vector3 unit = GetPathTowards(firstHostile);
+                skills.Attack1(unit.x, unit.y);
+            }*/
+            
         }
         else if (Equals(behavior, "Flee"))
         {
             if (timeSinceLastPathing > resetTime)
-                direction = GetFleePath();
-            firstHostile = null;
+                direction = GetFleePath(firstFleeFrom);
+            firstHostile = transform.position;
         }
         gameObject.transform.Translate(direction * speed * Time.deltaTime);
         if (timeSinceLastPathing > 1)
         {
             timeSinceLastPathing = 0;
         }
+    }
+
+    Vector3 GetUnitVector(Vector3 start, Vector3 end)
+    {
+        float deltaX = end.x - start.x;
+        float deltaY = end.y - start.y;
+        float magnitude = Mathf.Sqrt(Mathf.Pow(deltaX, 2) + Mathf.Pow(deltaY, 2));
+        if(magnitude == 0)
+        {
+            return new Vector3(0, 0);
+        }
+        return new Vector3(deltaX / magnitude, deltaY / magnitude);
     }
 
     Vector3 GetIdlePath()
@@ -161,25 +215,25 @@ public class BehaviorAI : MonoBehaviour {
         {
             y *= -1;
         }
+        Debug.Log("I am currently Idle");
         return new Vector3(x, y);
+        
     }
 
-    Vector3 GetHostilePath()
+    Vector3 GetPathTowards(Vector2 target)
     {
-        float angle = Mathf.Atan((firstHostile.transform.position.y - gameObject.transform.position.y) /
-                (firstHostile.transform.position.x - gameObject.transform.position.y));
+        float angle = Mathf.Atan(Mathf.Abs(target.y - gameObject.transform.position.y) /
+                Mathf.Abs(target.x - gameObject.transform.position.x));
         float x = Mathf.Cos(angle);
         float y = Mathf.Sin(angle);
         return new Vector3(x, y);
     }
 
-    Vector3 GetFleePath()
+    Vector3 GetFleePath(Vector2 target)
     {
-        float angle = -Mathf.Atan((firstFleeFrom.transform.position.y - gameObject.transform.position.y) /
-                (firstFleeFrom.transform.position.x - gameObject.transform.position.y));
-        float x = Mathf.Cos(angle);
-        float y = Mathf.Sin(angle);
-        return new Vector3(x, y);
+        Vector3 temp = GetPathTowards(target);
+        Debug.Log("I am currently Fleeing");
+        return new Vector3(-temp.x, -temp.y);
     }
 
     GameObject[] GetGameObjectsWithin(float radius)

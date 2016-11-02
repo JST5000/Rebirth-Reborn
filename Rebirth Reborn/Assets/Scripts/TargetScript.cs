@@ -39,7 +39,6 @@ public class TargetScript : MonoBehaviour {
     {
         Debug.Log("Ive collided");
         Attack atk = coll.gameObject.GetComponentInParent<Attack>();
-        Debug.Log("is null? " + Equals(atk, null) +"\n is attacking? " + atk.isAttacking);
         //coll.gameObject.name == "Player"
         if (!Equals(atk, null) && atk.isAttacking)
         {

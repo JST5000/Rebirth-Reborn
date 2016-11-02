@@ -3,13 +3,13 @@ using System.Collections;
 
 public class Attack : MonoBehaviour {
 
-    public float strikeForce = 3500;
+    public float strikeForce = 1;
     public float attackTimer = 100.0f;
     float hitTime = .5f;
     public bool isAttacking = false;
     //float attackTime = 0.0f;
     float cooldown = 0;
-    float maxCooldown = 1;
+    float maxCooldown = .3f;
     float attackDuration = 0.1f;
     public bool canAttack = true;
 
@@ -52,8 +52,6 @@ public class Attack : MonoBehaviour {
             Debug.Log("I AM ATTACKING");
             Vector2 direction = new Vector2(hori, vert);
             rb.AddForce(direction * strikeForce);
-       //     attackTime = Time.time
-
         }
     }
 }
